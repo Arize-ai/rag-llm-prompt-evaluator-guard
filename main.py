@@ -171,37 +171,35 @@ class LlmRagEvaluator(Validator):
                               text is relevant to the original question, or a FailResult otherwise.
         """
         # 1. Get the question and arg from the value
-        original_prompt = value.get("original_prompt")
-        if original_prompt is None:
+        user_input_message = metadata.get("user_message")
+        if user_input_message is None:
             raise RuntimeError(
                 "original_prompt missing from value. "
                 "Please provide the original prompt."
             )
 
-        reference = value.get("reference_text")
-        if reference is None:
+        reference_text = metadata.get("context")
+        if reference_text is None:
             raise RuntimeError(
                 "'reference_text' missing from value. "
                 "Please provide the reference text."
             )
 
         # 2. Setup the prompt
-        prompt = self.llm_evaluator_prompt_callable(original_prompt, reference)
+        prompt = self.llm_evaluator_prompt_generator.generate_prompt(user_input_message=user_input_message, reference_text=reference_text, llm_response=value)
+        print(f"evaluator prompt: {prompt}")
 
         # 3. Get the LLM response
         llm_response = self.get_llm_response(prompt)
+        print(f"llm evaluator response: {llm_response}")
 
         # 4. Check the LLM response and return the result
-        if llm_response == "unrelated":
-            return FailResult(error_message="The LLM says 'unrelated'. The validation failed.")
+        if llm_response == self.fail_response:
+            return FailResult(error_message=f"The LLM says {self.fail_response}. The validation failed.")
 
-        if llm_response == "relevant":
+        if llm_response == self.pass_response:
             return PassResult()
 
         return FailResult(
             error_message="The LLM returned an invalid answer. Failing the validation..."
         )
-
-
-if __name__ == "__main__":
-    pass
