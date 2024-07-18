@@ -184,6 +184,10 @@ class LlmRagEvaluator(Validator):
                 "'reference_text' missing from value. "
                 "Please provide the reference text."
             )
+        
+        # Option to override guarded LLM call with response passed in through metadata
+        if metadata.get("llm_response") is not None:
+            value = llm_response
 
         # 2. Setup the prompt
         prompt = self._llm_evaluator_prompt_generator.generate_prompt(user_input_message=user_input_message, reference_text=reference_text, llm_response=value)

@@ -44,7 +44,8 @@ def evaluate_guard_on_dataset(test_dataset: pd.DataFrame, guard: Guard) -> Tuple
             temperature=0.5,
             metadata={
                 "user_message": rag_example["query"],
-                "context": rag_example["reference"]
+                "context": rag_example["reference"],
+                "llm_response": rag_example["response"],
             }
         )
         logging.info(response)
@@ -59,6 +60,7 @@ if __name__ == "__main__":
     openai.api_key = openai_api_key
     os.environ["OPENAI_API_KEY"] = openai_api_key
     
+    # Columns: ['reference', 'query', 'response', 'is_hallucination']
     test_dataset = download_benchmark_dataset(
         task="binary-hallucination-classification",
         dataset_name="halueval_qa_data")
