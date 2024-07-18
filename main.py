@@ -1,7 +1,6 @@
 import os
-from typing import Any, Callable, Dict, Optional, Union, Type
-from warnings import warn
-from enum import Enum
+from typing import Any, Callable, Dict, Optional, Type
+import logging
 from abc import ABC, abstractmethod
 
 from guardrails.validator_base import (
@@ -13,6 +12,8 @@ from guardrails.validator_base import (
 )
 from guardrails.stores.context import get_call_kwarg
 from litellm import completion, get_llm_provider
+
+logger = logging.getLogger(__name__)
 
 
 class ArizeRagEvalPromptBase(ABC):
@@ -164,7 +165,12 @@ class LlmRagEvaluator(Validator):
 
         Args:
             value (Any): The value to validate. It must contain 'original_prompt' and 'reference_text' keys.
-            metadata (Dict): The metadata for the validation. This is not used in the current implementation.
+            metadata (Dict): The metadata for the validation.
+                user_message: Required key. User query passed into RAG LLM.
+                context: Required key. Context used by RAG LLM.
+                llm_response: Optional key. By default, the gaurded LLM will make the RAG LLM call, which corresponds
+                    to the `value`. If the user calls the guard with on="prompt", then the original RAG LLM response
+                    needs to be passed into the guard as metadata for the LLM judge to evaluate.
 
         Returns:
             ValidationResult: The result of the validation. It can be a PassResult if the reference 
@@ -191,11 +197,11 @@ class LlmRagEvaluator(Validator):
 
         # 2. Setup the prompt
         prompt = self._llm_evaluator_prompt_generator.generate_prompt(user_input_message=user_input_message, reference_text=reference_text, llm_response=value)
-        print(f"evaluator prompt: {prompt}")
+        logging.info(f"evaluator prompt: {prompt}")
 
         # 3. Get the LLM response
         llm_response = self.get_llm_response(prompt)
-        print(f"llm evaluator response: {llm_response}")
+        logging.info(f"llm evaluator response: {llm_response}")
 
         # 4. Check the LLM response and return the result
         if llm_response == self._fail_response:

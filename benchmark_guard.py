@@ -13,7 +13,6 @@ import pandas as pd
 from sklearn.metrics import classification_report
 
 from guardrails import Guard
-from guardrails.llm_providers import PromptCallableException
 from main import HallucinationPrompt, LlmRagEvaluator
 from phoenix.evals import download_benchmark_dataset
 
@@ -21,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 MODEL = "gpt-4-turbo"
-N_EVAL_SAMPLE_SIZE = 20
+N_EVAL_SAMPLE_SIZE = 100
 
 
 def evaluate_guard_on_dataset(test_dataset: pd.DataFrame, guard: Guard) -> Tuple[List[float], List[bool]]:
@@ -73,7 +72,8 @@ if __name__ == "__main__":
                 llm_evaluator_fail_response="hallucinated",
                 llm_evaluator_pass_response="factual",
                 llm_callable=MODEL,
-                on_fail="noop")
+                on_fail="noop",
+                on="prompt")
         ],
     )
     
@@ -81,8 +81,8 @@ if __name__ == "__main__":
     test_dataset["guard_passed"] = guard_passed
     test_dataset["guard_latency"] = latency_measurements
     
-    print("Guard Results")
-    print(classification_report(test_dataset["is_hallucination"], ~test_dataset["guard_passed"]))
+    logging.info("Guard Results")
+    logging.info(classification_report(test_dataset["is_hallucination"], ~test_dataset["guard_passed"]))
     
-    print("Latency")
-    print(test_dataset["guard_latency"].describe())
+    logging.info("Latency")
+    logging.info(test_dataset["guard_latency"].describe())
