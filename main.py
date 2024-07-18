@@ -25,6 +25,9 @@ class ArizeRagEvalPromptBase(ABC):
 
 
 class ContextRelevancyPrompt(ArizeRagEvalPromptBase):
+    def __init__(self, prompt_name, **kwargs) -> None:
+        super().__init__(prompt_name=prompt_name, **kwargs)
+    
     def generate_prompt(self, user_input_message: str, reference_text: str, llm_response: str) -> str:
         return f"""
             You are comparing a reference text to a question and trying to determine if the reference text
@@ -46,6 +49,9 @@ class ContextRelevancyPrompt(ArizeRagEvalPromptBase):
     
 
 class HallucinationPrompt(ArizeRagEvalPromptBase):
+    def __init__(self, prompt_name, **kwargs) -> None:
+        super().__init__(prompt_name=prompt_name, **kwargs)
+
     def generate_prompt(self, user_input_message: str, reference_text: str, llm_response: str) -> str:
         return f"""
             In this task, you will be presented with a query, a reference text and an answer. The answer is
@@ -76,6 +82,9 @@ class HallucinationPrompt(ArizeRagEvalPromptBase):
     
 
 class QACorrectnessPrompt(ArizeRagEvalPromptBase):
+    def __init__(self, prompt_name, **kwargs) -> None:
+        super().__init__(prompt_name=prompt_name, **kwargs)
+
     def generate_prompt(self, user_input_message: str, reference_text: str, llm_response: str) -> str:
         return f"""
             You are given a question, an answer and reference text. You must determine whether the
@@ -115,18 +124,18 @@ class LlmRagEvaluator(Validator):
 
     def __init__(
         self,
-        eval_llm_prompt_generator: Type[ArizeRagEvalPromptBase],
-        llm_evaluator_fail_response: str,
-        llm_evaluator_pass_response: str, 
+        eval_llm_prompt_generator: Type[ArizeRagEvalPromptBase] = HallucinationPrompt("hallucination_judge_llm"),
+        llm_evaluator_fail_response: str = "hallucinated",
+        llm_evaluator_pass_response: str = "factual", 
         llm_callable: str = "gpt-3.5-turbo",  # str for litellm model name
-        on_fail: Optional[Callable] = None,
+        on_fail: Optional[Callable] = "noop",
         **kwargs,
     ):
         super().__init__(on_fail, llm_callable=llm_callable, **kwargs)
-        self.llm_evaluator_prompt_generator = eval_llm_prompt_generator
-        self.llm_callable = llm_callable
-        self.fail_response = llm_evaluator_fail_response
-        self.pass_response = llm_evaluator_pass_response
+        self._llm_evaluator_prompt_generator = eval_llm_prompt_generator
+        self._llm_callable = llm_callable
+        self._fail_response = llm_evaluator_fail_response
+        self._pass_response = llm_evaluator_pass_response
 
     def get_llm_response(self, prompt: str) -> str:
         """Gets the response from the LLM.
@@ -142,14 +151,14 @@ class LlmRagEvaluator(Validator):
         
         # 0b. Setup auth kwargs if the model is from OpenAI
         kwargs = {}
-        _model, provider, *_rest = get_llm_provider(self.llm_callable)
+        _model, provider, *_rest = get_llm_provider(self._llm_callable)
         if provider == "openai":
             kwargs["api_key"] = get_call_kwarg("api_key") or os.environ.get("OPENAI_API_KEY")
 
         # 1. Get LLM response
         # Strip whitespace and convert to lowercase
         try:
-            response = completion(model=self.llm_callable, messages=messages, **kwargs)
+            response = completion(model=self._llm_callable, messages=messages, **kwargs)
             response = response.choices[0].message.content  # type: ignore
             response = response.strip().lower()
         except Exception as e:
@@ -186,7 +195,7 @@ class LlmRagEvaluator(Validator):
             )
 
         # 2. Setup the prompt
-        prompt = self.llm_evaluator_prompt_generator.generate_prompt(user_input_message=user_input_message, reference_text=reference_text, llm_response=value)
+        prompt = self._llm_evaluator_prompt_generator.generate_prompt(user_input_message=user_input_message, reference_text=reference_text, llm_response=value)
         print(f"evaluator prompt: {prompt}")
 
         # 3. Get the LLM response
@@ -194,10 +203,10 @@ class LlmRagEvaluator(Validator):
         print(f"llm evaluator response: {llm_response}")
 
         # 4. Check the LLM response and return the result
-        if llm_response == self.fail_response:
-            return FailResult(error_message=f"The LLM says {self.fail_response}. The validation failed.")
+        if llm_response == self._fail_response:
+            return FailResult(error_message=f"The LLM says {self._fail_response}. The validation failed.")
 
-        if llm_response == self.pass_response:
+        if llm_response == self._pass_response:
             return PassResult()
 
         return FailResult(
