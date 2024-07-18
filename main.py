@@ -1,7 +1,6 @@
 import os
-from typing import Any, Callable, Dict, Optional, Union, Type
-from warnings import warn
-from enum import Enum
+from typing import Any, Callable, Dict, Optional, Type
+import logging
 from abc import ABC, abstractmethod
 
 from guardrails.validator_base import (
@@ -13,6 +12,8 @@ from guardrails.validator_base import (
 )
 from guardrails.stores.context import get_call_kwarg
 from litellm import completion, get_llm_provider
+
+logger = logging.getLogger(__name__)
 
 
 class ArizeRagEvalPromptBase(ABC):
@@ -115,18 +116,18 @@ class LlmRagEvaluator(Validator):
 
     def __init__(
         self,
-        eval_llm_prompt_generator: Type[ArizeRagEvalPromptBase],
-        llm_evaluator_fail_response: str,
-        llm_evaluator_pass_response: str, 
+        eval_llm_prompt_generator: Type[ArizeRagEvalPromptBase] = HallucinationPrompt("hallucination_judge_llm"),
+        llm_evaluator_fail_response: str = "hallucinated",
+        llm_evaluator_pass_response: str = "factual", 
         llm_callable: str = "gpt-3.5-turbo",  # str for litellm model name
-        on_fail: Optional[Callable] = None,
+        on_fail: Optional[Callable] = "noop",
         **kwargs,
     ):
         super().__init__(on_fail, llm_callable=llm_callable, **kwargs)
-        self.llm_evaluator_prompt_generator = eval_llm_prompt_generator
-        self.llm_callable = llm_callable
-        self.fail_response = llm_evaluator_fail_response
-        self.pass_response = llm_evaluator_pass_response
+        self._llm_evaluator_prompt_generator = eval_llm_prompt_generator
+        self._llm_callable = llm_callable
+        self._fail_response = llm_evaluator_fail_response
+        self._pass_response = llm_evaluator_pass_response
 
     def get_llm_response(self, prompt: str) -> str:
         """Gets the response from the LLM.
@@ -142,14 +143,14 @@ class LlmRagEvaluator(Validator):
         
         # 0b. Setup auth kwargs if the model is from OpenAI
         kwargs = {}
-        _model, provider, *_rest = get_llm_provider(self.llm_callable)
+        _model, provider, *_rest = get_llm_provider(self._llm_callable)
         if provider == "openai":
             kwargs["api_key"] = get_call_kwarg("api_key") or os.environ.get("OPENAI_API_KEY")
 
         # 1. Get LLM response
         # Strip whitespace and convert to lowercase
         try:
-            response = completion(model=self.llm_callable, messages=messages, **kwargs)
+            response = completion(model=self._llm_callable, messages=messages, **kwargs)
             response = response.choices[0].message.content  # type: ignore
             response = response.strip().lower()
         except Exception as e:
@@ -164,7 +165,12 @@ class LlmRagEvaluator(Validator):
 
         Args:
             value (Any): The value to validate. It must contain 'original_prompt' and 'reference_text' keys.
-            metadata (Dict): The metadata for the validation. This is not used in the current implementation.
+            metadata (Dict): The metadata for the validation.
+                user_message: Required key. User query passed into RAG LLM.
+                context: Required key. Context used by RAG LLM.
+                llm_response: Optional key. By default, the gaurded LLM will make the RAG LLM call, which corresponds
+                    to the `value`. If the user calls the guard with on="prompt", then the original RAG LLM response
+                    needs to be passed into the guard as metadata for the LLM judge to evaluate.
 
         Returns:
             ValidationResult: The result of the validation. It can be a PassResult if the reference 
@@ -184,20 +190,24 @@ class LlmRagEvaluator(Validator):
                 "'reference_text' missing from value. "
                 "Please provide the reference text."
             )
+        
+        # Option to override guarded LLM call with response passed in through metadata
+        if metadata.get("llm_response") is not None:
+            value = metadata.get("llm_response")
 
         # 2. Setup the prompt
-        prompt = self.llm_evaluator_prompt_generator.generate_prompt(user_input_message=user_input_message, reference_text=reference_text, llm_response=value)
-        print(f"evaluator prompt: {prompt}")
+        prompt = self._llm_evaluator_prompt_generator.generate_prompt(user_input_message=user_input_message, reference_text=reference_text, llm_response=value)
+        logging.info(f"evaluator prompt: {prompt}")
 
         # 3. Get the LLM response
         llm_response = self.get_llm_response(prompt)
-        print(f"llm evaluator response: {llm_response}")
+        logging.info(f"llm evaluator response: {llm_response}")
 
         # 4. Check the LLM response and return the result
-        if llm_response == self.fail_response:
-            return FailResult(error_message=f"The LLM says {self.fail_response}. The validation failed.")
+        if llm_response == self._fail_response:
+            return FailResult(error_message=f"The LLM says {self._fail_response}. The validation failed.")
 
-        if llm_response == self.pass_response:
+        if llm_response == self._pass_response:
             return PassResult()
 
         return FailResult(
