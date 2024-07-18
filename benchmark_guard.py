@@ -17,14 +17,19 @@ from main import HallucinationPrompt, QACorrectnessPrompt, ContextRelevancyPromp
 from phoenix.evals import download_benchmark_dataset
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 
 MODEL = "gpt-4-turbo"
 N_EVAL_SAMPLE_SIZE = 100
 # Choose one of HallucinationPrompt, QACorrectnessPrompt, ContextRelevancyPrompt
 PROMPT_TEMPLATE = HallucinationPrompt(prompt_name="hallucination_judge_llm")
+# hallucinated, incorrect, unrelated
 FAIL_RESPONSE = "hallucinated"
+# factual, correct, relevant
 PASS_RESPONSE = "factual"
+# is_hallucinated, correct_answer, relevant
+GT_COLUMN_NAME = "is_hallucinated"
 
 
 def evaluate_guard_on_dataset(test_dataset: pd.DataFrame, guard: Guard) -> Tuple[List[float], List[bool]]:
@@ -80,8 +85,8 @@ if __name__ == "__main__":
         validators=[
             LlmRagEvaluator(
                 eval_llm_prompt_generator=PROMPT_TEMPLATE,
-                llm_evaluator_fail_response="hallucinated",
-                llm_evaluator_pass_response="factual",
+                llm_evaluator_fail_response=FAIL_RESPONSE,
+                llm_evaluator_pass_response=PASS_RESPONSE,
                 llm_callable=MODEL,
                 on_fail="noop",
                 on="prompt")
@@ -93,7 +98,7 @@ if __name__ == "__main__":
     test_dataset["guard_latency"] = latency_measurements
     
     logging.info("Guard Results")
-    logging.info(classification_report(test_dataset["is_hallucination"], ~test_dataset["guard_passed"]))
+    logging.info(classification_report(test_dataset[GT_COLUMN_NAME], ~test_dataset["guard_passed"]))
     
     logging.info("Latency")
     logging.info(test_dataset["guard_latency"].describe())
