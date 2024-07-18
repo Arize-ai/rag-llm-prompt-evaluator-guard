@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 MODEL = "gpt-4-turbo"
-N_EVAL_SAMPLE_SIZE = 100
+N_EVAL_SAMPLE_SIZE = 20
 
 
 def evaluate_guard_on_dataset(test_dataset: pd.DataFrame, guard: Guard) -> Tuple[List[float], List[bool]]:
@@ -35,26 +35,21 @@ def evaluate_guard_on_dataset(test_dataset: pd.DataFrame, guard: Guard) -> Tuple
     latency_measurements = []
     guard_passed = []
     for _, rag_example in test_dataset.iterrows():
-        try:
-            start_time = time.perf_counter()
-            response = guard(
-                llm_api=openai.chat.completions.create,
-                prompt=rag_example["query"],
-                model=MODEL,
-                max_tokens=1024,
-                temperature=0.5,
-                metadata={
-                    "user_message": rag_example["query"],
-                    "context": rag_example["reference"]
-                }
-            )
-            logging.info(response)
-            latency_measurements.append(time.perf_counter() - start_time)
-            guard_passed.append(response.validation_passed)
-        except PromptCallableException as e:
-            # Dataset may contain a few bad apples that result in an Open AI error for invalid inputs.
-            # Catch and log the exception, then continue benchmarking the valid examples.
-            logging.warn(f"Skipping with exception: {e}")
+        start_time = time.perf_counter()
+        response = guard(
+            llm_api=openai.chat.completions.create,
+            prompt=rag_example["query"],
+            model=MODEL,
+            max_tokens=1024,
+            temperature=0.5,
+            metadata={
+                "user_message": rag_example["query"],
+                "context": rag_example["reference"]
+            }
+        )
+        logging.info(response)
+        latency_measurements.append(time.perf_counter() - start_time)
+        guard_passed.append(response.validation_passed)
     return latency_measurements, guard_passed
 
 
