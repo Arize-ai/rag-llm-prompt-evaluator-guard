@@ -25,9 +25,6 @@ class ArizeRagEvalPromptBase(ABC):
 
 
 class ContextRelevancyPrompt(ArizeRagEvalPromptBase):
-    def __init__(self, prompt_name, **kwargs) -> None:
-        super().__init__(prompt_name=prompt_name, **kwargs)
-    
     def generate_prompt(self, user_input_message: str, reference_text: str, llm_response: str) -> str:
         return f"""
             You are comparing a reference text to a question and trying to determine if the reference text
@@ -49,9 +46,6 @@ class ContextRelevancyPrompt(ArizeRagEvalPromptBase):
     
 
 class HallucinationPrompt(ArizeRagEvalPromptBase):
-    def __init__(self, prompt_name, **kwargs) -> None:
-        super().__init__(prompt_name=prompt_name, **kwargs)
-
     def generate_prompt(self, user_input_message: str, reference_text: str, llm_response: str) -> str:
         return f"""
             In this task, you will be presented with a query, a reference text and an answer. The answer is
@@ -82,9 +76,6 @@ class HallucinationPrompt(ArizeRagEvalPromptBase):
     
 
 class QACorrectnessPrompt(ArizeRagEvalPromptBase):
-    def __init__(self, prompt_name, **kwargs) -> None:
-        super().__init__(prompt_name=prompt_name, **kwargs)
-
     def generate_prompt(self, user_input_message: str, reference_text: str, llm_response: str) -> str:
         return f"""
             You are given a question, an answer and reference text. You must determine whether the
