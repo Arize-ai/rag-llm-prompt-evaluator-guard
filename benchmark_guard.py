@@ -1,6 +1,10 @@
-"""Script to evaluate Guard on benchmark dataset. Currently supported datasets include "halueval_qa_data" from the HaluEval benchmark:
+"""Script to evaluate default Guard prompts on benchmark datasets. 
+
+HallucinationPrompt is evaluated on a datasets from the HaluEval benchmark:
 * https://arxiv.org/abs/2305.11747
 * https://github.com/RUCAIBox/HaluEval
+
+
 """
 import os
 import time
@@ -21,15 +25,16 @@ logging.basicConfig(level=logging.INFO)
 
 
 MODEL = "gpt-4-turbo"
-N_EVAL_SAMPLE_SIZE = 100
+N_EVAL_SAMPLE_SIZE = 10
 # Choose one of HallucinationPrompt, QACorrectnessPrompt, ContextRelevancyPrompt
 PROMPT_TEMPLATE = HallucinationPrompt(prompt_name="hallucination_judge_llm")
 # hallucinated, incorrect, unrelated
 FAIL_RESPONSE = "hallucinated"
 # factual, correct, relevant
 PASS_RESPONSE = "factual"
-# is_hallucinated, correct_answer, relevant
-GT_COLUMN_NAME = "is_hallucinated"
+# is_hallucination, correct_answer, relevant
+GT_COLUMN_NAME = "is_hallucination"
+SAVE_DATAFRAME_PATH = f"/tmp/{PROMPT_TEMPLATE.prompt_name}_on_dataset.csv"
 
 
 def evaluate_guard_on_dataset(test_dataset: pd.DataFrame, guard: Guard) -> Tuple[List[float], List[bool]]:
@@ -96,6 +101,8 @@ if __name__ == "__main__":
     latency_measurements, guard_passed = evaluate_guard_on_dataset(test_dataset=test_dataset, guard=guard)
     test_dataset["guard_passed"] = guard_passed
     test_dataset["guard_latency"] = latency_measurements
+    if SAVE_DATAFRAME_PATH:
+        test_dataset.to_csv(SAVE_DATAFRAME_PATH)
     
     logging.info("Guard Results")
     logging.info(classification_report(test_dataset[GT_COLUMN_NAME], ~test_dataset["guard_passed"]))
