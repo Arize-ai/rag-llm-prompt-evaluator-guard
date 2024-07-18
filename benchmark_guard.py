@@ -51,8 +51,8 @@ def evaluate_guard_on_dataset(test_dataset: pd.DataFrame, guard: Guard) -> Tuple
                 "llm_response": rag_example["response"],
             }
         )
-        logging.info(response)
         latency_measurements.append(time.perf_counter() - start_time)
+        logging.info(response)
         guard_passed.append(response.validation_passed)
     return latency_measurements, guard_passed
 
