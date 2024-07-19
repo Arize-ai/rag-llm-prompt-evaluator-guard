@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 logging.getLogger().setLevel(logging.INFO)
 
 
-MODEL = "gpt-4-turbo"
+MODEL = "gpt-4o-mini"
 N_EVAL_SAMPLE_SIZE = 100
 
 
