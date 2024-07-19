@@ -134,10 +134,6 @@ class LlmRagEvaluator(Validator):
         self._llm_callable = llm_callable
         self._fail_response = llm_evaluator_fail_response
         self._pass_response = llm_evaluator_pass_response
-        print(f"self._llm_callable: {self._llm_callable}")
-        print(f"eval_llm_prompt_generator: {eval_llm_prompt_generator.prompt_name}")
-        print(f"self._fail_response: {self._fail_response}")
-        print(f"self._fail_response: {self._pass_response}")
 
     def get_llm_response(self, prompt: str) -> str:
         """Gets the response from the LLM.
