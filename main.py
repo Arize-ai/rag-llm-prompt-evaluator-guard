@@ -116,14 +116,20 @@ class LlmRagEvaluator(Validator):
 
     def __init__(
         self,
-        eval_llm_prompt_generator: Type[ArizeRagEvalPromptBase] = HallucinationPrompt("hallucination_judge_llm"),
-        llm_evaluator_fail_response: str = "hallucinated",
-        llm_evaluator_pass_response: str = "factual", 
-        llm_callable: str = "gpt-3.5-turbo",  # str for litellm model name
+        eval_llm_prompt_generator: Type[ArizeRagEvalPromptBase],
+        llm_evaluator_fail_response: str,
+        llm_evaluator_pass_response: str, 
+        llm_callable: str = "gpt-4o-mini",
         on_fail: Optional[Callable] = "noop",
         **kwargs,
     ):
-        super().__init__(on_fail, llm_callable=llm_callable, **kwargs)
+        super().__init__(
+            on_fail,
+            eval_llm_prompt_generator=eval_llm_prompt_generator,
+            llm_evaluator_fail_response=llm_evaluator_fail_response,
+            llm_evaluator_pass_response=llm_evaluator_pass_response,
+            llm_callable=llm_callable, 
+            **kwargs)
         self._llm_evaluator_prompt_generator = eval_llm_prompt_generator
         self._llm_callable = llm_callable
         self._fail_response = llm_evaluator_fail_response
