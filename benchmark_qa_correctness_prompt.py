@@ -1,9 +1,28 @@
-"""Script to evaluate Hallucination Guard on benchmark dataset.
-Currently supported datasets include "halueval_qa_data" from the HaluEval benchmark:
-* https://arxiv.org/abs/2305.11747
-* https://github.com/RUCAIBox/HaluEval
+"""Script to evaluate QA Correctness Guard on benchmark dataset.
+The 2.0 version of the large-scale dataset Stanford Question Answering Dataset (SQuAD 2.0) allows
+researchers to design AI models for reading comprehension tasks under challenging constraints.
+https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1194/reports/default/15785042.pdf
 
+INFO:root:Guard Results
+INFO:root:              precision    recall  f1-score   support
 
+       False       1.00      0.94      0.97        53
+        True       0.94      1.00      0.97        47
+
+    accuracy                           0.97       100
+   macro avg       0.97      0.97      0.97       100
+weighted avg       0.97      0.97      0.97       100
+
+INFO:root:Latency
+INFO:root:count    100.000000
+mean       2.079899
+std        0.987875
+min        0.964482
+25%        1.372492
+50%        1.755663
+75%        2.344838
+max        5.748011
+Name: guard_latency, dtype: float64
 """
 import os
 import time
@@ -23,7 +42,7 @@ logger = logging.getLogger(__name__)
 logging.getLogger().setLevel(logging.INFO)
 
 
-MODEL = "gpt-4-turbo"
+MODEL = "gpt-4o-mini"
 N_EVAL_SAMPLE_SIZE = 100
 
 
@@ -86,6 +105,7 @@ if __name__ == "__main__":
     test_dataset["guard_latency"] = latency_measurements
     
     logging.info("Guard Results")
+    # Calculate precision, recall and f1-score for when the Guard fails (e.g. flags an incorrect answer)
     logging.info(classification_report(~test_dataset["answer_true"], ~test_dataset["guard_passed"]))
     
     logging.info("Latency")

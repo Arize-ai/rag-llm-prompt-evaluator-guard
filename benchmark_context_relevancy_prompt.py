@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 logging.getLogger().setLevel(logging.INFO)
 
 
-MODEL = "gpt-4-turbo"
+MODEL = "gpt-4o-mini"
 N_EVAL_SAMPLE_SIZE = 100
 
 
@@ -85,7 +85,8 @@ if __name__ == "__main__":
     test_dataset["guard_latency"] = latency_measurements
     
     logging.info("Guard Results")
-    logging.info(classification_report(test_dataset["relevant"], ~test_dataset["guard_passed"]))
+    # Calculate precision, recall and f1-score for when the Guard fails (e.g. flags an irrelevant answer)
+    logging.info(classification_report(~test_dataset["relevant"], ~test_dataset["guard_passed"]))
     
     logging.info("Latency")
     logging.info(test_dataset["guard_latency"].describe())
