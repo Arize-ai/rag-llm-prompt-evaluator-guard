@@ -1,6 +1,28 @@
-"""Script to evaluate Guard on benchmark dataset. Currently supported datasets include "halueval_qa_data" from the HaluEval benchmark:
+"""Script to evaluate Hallucination Guard on benchmark dataset.
+Currently supported datasets include "halueval_qa_data" from the HaluEval benchmark:
 * https://arxiv.org/abs/2305.11747
 * https://github.com/RUCAIBox/HaluEval
+
+INFO:root:Guard Results
+INFO:root:              precision    recall  f1-score   support
+
+       False       0.92      0.88      0.90        50
+        True       0.88      0.92      0.90        50
+
+    accuracy                           0.90       100
+   macro avg       0.90      0.90      0.90       100
+weighted avg       0.90      0.90      0.90       100
+
+INFO:root:Latency
+INFO:root:count    100.000000
+mean       3.692588
+std        1.711295
+min        1.734002
+25%        2.623650
+50%        3.209603
+75%        4.156412
+max       10.170909
+Name: guard_latency, dtype: float64
 """
 import os
 import time
@@ -17,6 +39,7 @@ from main import HallucinationPrompt, LlmRagEvaluator
 from phoenix.evals import download_benchmark_dataset
 
 logger = logging.getLogger(__name__)
+logging.getLogger().setLevel(logging.INFO)
 
 
 MODEL = "gpt-4-turbo"
