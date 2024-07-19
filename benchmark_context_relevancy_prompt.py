@@ -1,13 +1,33 @@
 """Script to evaluate Context Relevancy Guard on "wiki_qa-train" benchmark dataset.
 * https://huggingface.co/datasets/microsoft/wiki_qa
 
+INFO:root:Guard Results
+INFO:root:              precision    recall  f1-score   support
 
+       False       0.59      0.90      0.71        41
+        True       0.89      0.56      0.69        59
+
+    accuracy                           0.70       100
+   macro avg       0.74      0.73      0.70       100
+weighted avg       0.77      0.70      0.70       100
+
+INFO:root:Latency
+INFO:root:count    100.000000
+mean       2.138843
+std        0.908402
+min        0.938294
+25%        1.466153
+50%        1.873620
+75%        2.542088
+max        5.952361
+Name: guard_latency, dtype: float64
 """
 import os
 import time
 from getpass import getpass
 from typing import List, Tuple
 import logging
+import random
 
 import openai
 import pandas as pd
@@ -20,6 +40,8 @@ from sklearn.utils import shuffle
 
 logger = logging.getLogger(__name__)
 logging.getLogger().setLevel(logging.INFO)
+
+random.seed(119)
 
 
 MODEL = "gpt-4o-mini"

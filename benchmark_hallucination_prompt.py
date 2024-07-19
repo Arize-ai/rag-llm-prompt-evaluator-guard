@@ -6,22 +6,22 @@ Currently supported datasets include "halueval_qa_data" from the HaluEval benchm
 INFO:root:Guard Results
 INFO:root:              precision    recall  f1-score   support
 
-       False       0.92      0.88      0.90        50
-        True       0.88      0.92      0.90        50
+       False       0.83      0.93      0.88        54
+        True       0.90      0.78      0.84        46
 
-    accuracy                           0.90       100
-   macro avg       0.90      0.90      0.90       100
-weighted avg       0.90      0.90      0.90       100
+    accuracy                           0.86       100
+   macro avg       0.87      0.85      0.86       100
+weighted avg       0.86      0.86      0.86       100
 
 INFO:root:Latency
 INFO:root:count    100.000000
-mean       3.692588
-std        1.711295
-min        1.734002
-25%        2.623650
-50%        3.209603
-75%        4.156412
-max       10.170909
+mean       1.533940
+std        0.552186
+min        1.069116
+25%        1.256626
+50%        1.393182
+75%        1.617315
+max        4.579247
 Name: guard_latency, dtype: float64
 """
 import os
@@ -29,10 +29,12 @@ import time
 from getpass import getpass
 from typing import List, Tuple
 import logging
+import random
 
 import openai
 import pandas as pd
 from sklearn.metrics import classification_report
+from sklearn.utils import shuffle
 
 from guardrails import Guard
 from main import HallucinationPrompt, LlmRagEvaluator
@@ -40,6 +42,8 @@ from phoenix.evals import download_benchmark_dataset
 
 logger = logging.getLogger(__name__)
 logging.getLogger().setLevel(logging.INFO)
+
+random.seed(119)
 
 
 MODEL = "gpt-4o-mini"
@@ -86,6 +90,7 @@ if __name__ == "__main__":
     test_dataset = download_benchmark_dataset(
         task="binary-hallucination-classification",
         dataset_name="halueval_qa_data")
+    test_dataset = shuffle(test_dataset)
     test_dataset = test_dataset[:N_EVAL_SAMPLE_SIZE]
     
     guard = Guard.from_string(

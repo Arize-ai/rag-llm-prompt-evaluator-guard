@@ -6,8 +6,8 @@ https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1194/reports/default/157
 INFO:root:Guard Results
 INFO:root:              precision    recall  f1-score   support
 
-       False       1.00      0.94      0.97        53
-        True       0.94      1.00      0.97        47
+       False       1.00      0.94      0.97        50
+        True       0.94      1.00      0.97        50
 
     accuracy                           0.97       100
    macro avg       0.97      0.97      0.97       100
@@ -15,13 +15,13 @@ weighted avg       0.97      0.97      0.97       100
 
 INFO:root:Latency
 INFO:root:count    100.000000
-mean       2.079899
-std        0.987875
-min        0.964482
-25%        1.372492
-50%        1.755663
-75%        2.344838
-max        5.748011
+mean       1.845307
+std        0.867450
+min        0.982674
+25%        1.354958
+50%        1.606060
+75%        1.928065
+max        6.342991
 Name: guard_latency, dtype: float64
 """
 import os
@@ -29,6 +29,7 @@ import time
 from getpass import getpass
 from typing import List, Tuple
 import logging
+import random
 
 import openai
 import pandas as pd
@@ -37,9 +38,12 @@ from sklearn.metrics import classification_report
 from guardrails import Guard
 from main import QACorrectnessPrompt, LlmRagEvaluator
 from phoenix.evals import download_benchmark_dataset
+from sklearn.utils import shuffle
 
 logger = logging.getLogger(__name__)
 logging.getLogger().setLevel(logging.INFO)
+
+random.seed(119)
 
 
 MODEL = "gpt-4o-mini"
@@ -86,6 +90,7 @@ if __name__ == "__main__":
     test_dataset = df = download_benchmark_dataset(
         task="qa-classification",
         dataset_name="qa_generated_dataset")
+    test_dataset = shuffle(test_dataset)
     test_dataset = test_dataset[:N_EVAL_SAMPLE_SIZE]
     
     guard = Guard.from_string(
