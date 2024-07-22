@@ -55,7 +55,6 @@ import os
 import time
 from getpass import getpass
 from typing import List, Tuple
-import logging
 
 import openai
 import pandas as pd
@@ -65,9 +64,6 @@ from guardrails import Guard
 from main import QACorrectnessPrompt, LlmRagEvaluator
 from phoenix.evals import download_benchmark_dataset
 from sklearn.utils import shuffle
-
-logger = logging.getLogger(__name__)
-logging.getLogger().setLevel(logging.INFO)
 
 
 RANDOM_STATE = 119
@@ -101,8 +97,6 @@ def evaluate_guard_on_dataset(test_dataset: pd.DataFrame, guard: Guard, model: s
             }
         )
         latency_measurements.append(time.perf_counter() - start_time)
-        logging.debug(response)
-        logging.debug(f"GT answer_true: {rag_example["answer_true"]}")
         guard_passed.append(response.validation_passed)
     return latency_measurements, guard_passed
 
@@ -141,11 +135,11 @@ if __name__ == "__main__":
                 os.makedirs(SAVE_RESULTS_DIR, exist_ok=True)
                 test_dataset.to_csv(os.path.join(SAVE_RESULTS_DIR, f"{model}.csv"))
         
-        logging.info("Guard Results")
+        print("Guard Results")
         # Calculate precision, recall and f1-score for when the Guard fails (e.g. flags an incorrect answer)
-        logging.info(classification_report(~test_dataset["answer_true"], ~test_dataset["guard_passed"]))
+        print(classification_report(~test_dataset["answer_true"], ~test_dataset["guard_passed"]))
         
-        logging.info("Latency")
-        logging.info(test_dataset["guard_latency"].describe())
-        logging.info("median latency")
-        logging.info(test_dataset["guard_latency"].median())
+        print("Latency")
+        print(test_dataset["guard_latency"].describe())
+        print("median latency")
+        print(test_dataset["guard_latency"].median())

@@ -55,7 +55,6 @@ import os
 import time
 from getpass import getpass
 from typing import List, Tuple
-import logging
 
 import openai
 import pandas as pd
@@ -65,9 +64,6 @@ from sklearn.utils import shuffle
 from guardrails import Guard
 from main import HallucinationPrompt, LlmRagEvaluator
 from phoenix.evals import download_benchmark_dataset
-
-logger = logging.getLogger(__name__)
-logging.getLogger().setLevel(logging.INFO)
 
 
 RANDOM_STATE = 119

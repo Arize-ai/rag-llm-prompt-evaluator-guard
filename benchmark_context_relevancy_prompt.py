@@ -53,7 +53,6 @@ import os
 import time
 from getpass import getpass
 from typing import List, Tuple
-import logging
 
 import openai
 import pandas as pd
