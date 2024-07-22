@@ -3,6 +3,7 @@ The 2.0 version of the large-scale dataset Stanford Question Answering Dataset (
 researchers to design AI models for reading comprehension tasks under challenging constraints.
 https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1194/reports/default/15785042.pdf
 
+MODEL = "gpt-4o-mini"
 INFO:root:Guard Results
 INFO:root:              precision    recall  f1-score   support
 
@@ -23,6 +24,30 @@ min        0.982674
 75%        1.928065
 max        6.342991
 Name: guard_latency, dtype: float64
+
+MODEL = "gpt-3.5-turbo"
+INFO:root:Guard Results
+INFO:root:              precision    recall  f1-score   support
+
+       False       0.99      0.85      0.92       241
+        True       0.88      0.99      0.93       259
+
+    accuracy                           0.92       500
+   macro avg       0.93      0.92      0.92       500
+weighted avg       0.93      0.92      0.92       500
+
+INFO:root:Latency
+INFO:root:count    500.000000
+mean       1.319235
+std        0.267373
+min        0.908680
+25%        1.146413
+50%        1.240861
+75%        1.426277
+max        3.370158
+Name: guard_latency, dtype: float64
+INFO:root:median latency
+INFO:root:1.2408613750012591
 """
 import os
 import time

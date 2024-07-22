@@ -73,7 +73,7 @@ logging.getLogger().setLevel(logging.INFO)
 random.seed(119)
 
 
-MODEL = "gpt-3.5-turbo"
+MODEL = "gpt-4o-mini"
 N_EVAL_SAMPLE_SIZE = 500
 
 
@@ -102,7 +102,7 @@ def evaluate_guard_on_dataset(test_dataset: pd.DataFrame, guard: Guard) -> Tuple
             }
         )
         latency_measurements.append(time.perf_counter() - start_time)
-        logging.info(response)
+        logging.debug(response)
         guard_passed.append(response.validation_passed)
     return latency_measurements, guard_passed
 
