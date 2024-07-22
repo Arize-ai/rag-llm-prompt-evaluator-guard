@@ -28,6 +28,28 @@ INFO:root:median latency
 INFO:root:1.5474009165191092
 
 MODEL = "gpt-3.5-turbo"
+INFO:root:Guard Results
+INFO:root:              precision    recall  f1-score   support
+
+       False       0.84      0.80      0.82       275
+        True       0.77      0.82      0.79       225
+
+    accuracy                           0.81       500
+   macro avg       0.80      0.81      0.81       500
+weighted avg       0.81      0.81      0.81       500
+
+INFO:root:Latency
+INFO:root:count    500.000000
+mean       1.337587
+std        0.343144
+min        0.950819
+25%        1.176967
+50%        1.282560
+75%        1.439100
+max        7.220026
+Name: guard_latency, dtype: float64
+INFO:root:median latency
+INFO:root:1.2825598954805173
 """
 import os
 import time
