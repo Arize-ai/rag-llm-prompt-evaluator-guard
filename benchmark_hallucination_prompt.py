@@ -3,26 +3,31 @@ Currently supported datasets include "halueval_qa_data" from the HaluEval benchm
 * https://arxiv.org/abs/2305.11747
 * https://github.com/RUCAIBox/HaluEval
 
+MODEL = "gpt-4o-mini"
 INFO:root:Guard Results
 INFO:root:              precision    recall  f1-score   support
 
-       False       0.83      0.93      0.88        54
-        True       0.90      0.78      0.84        46
+       False       0.78      0.98      0.86       265
+        True       0.96      0.68      0.80       235
 
-    accuracy                           0.86       100
-   macro avg       0.87      0.85      0.86       100
-weighted avg       0.86      0.86      0.86       100
+    accuracy                           0.84       500
+   macro avg       0.87      0.83      0.83       500
+weighted avg       0.86      0.84      0.83       500
 
 INFO:root:Latency
-INFO:root:count    100.000000
-mean       1.533940
-std        0.552186
-min        1.069116
-25%        1.256626
-50%        1.393182
-75%        1.617315
-max        4.579247
+INFO:root:count    500.000000
+mean       1.843508
+std        1.634371
+min        1.056757
+25%        1.377324
+50%        1.547401
+75%        1.862995
+max       26.142654
 Name: guard_latency, dtype: float64
+INFO:root:median latency
+INFO:root:1.5474009165191092
+
+MODEL = "gpt-3.5-turbo"
 """
 import os
 import time
@@ -46,7 +51,7 @@ logging.getLogger().setLevel(logging.INFO)
 random.seed(119)
 
 
-MODEL = "gpt-4o-mini"
+MODEL = "gpt-3.5-turbo"
 N_EVAL_SAMPLE_SIZE = 500
 
 
