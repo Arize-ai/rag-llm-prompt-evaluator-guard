@@ -132,8 +132,8 @@ if __name__ == "__main__":
         test_dataset["guard_latency"] = latency_measurements
 
         if SAVE_RESULTS_DIR:
-                os.makedirs(SAVE_RESULTS_DIR, exist_ok=True)
-                test_dataset.to_csv(os.path.join(SAVE_RESULTS_DIR, f"{model}.csv"))
+            os.makedirs(SAVE_RESULTS_DIR, exist_ok=True)
+            test_dataset.to_csv(os.path.join(SAVE_RESULTS_DIR, f"{model}.csv"))
         
         print("Guard Results")
         # Calculate precision, recall and f1-score for when the Guard fails (e.g. flags an incorrect answer)
