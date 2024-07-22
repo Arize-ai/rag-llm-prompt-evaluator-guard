@@ -26,6 +26,28 @@ INFO:root:median latency
 INFO:root:2.1644513119827025
 
 MODEL = "gpt-3.5-turbo"
+INFO:root:Guard Results
+INFO:root:              precision    recall  f1-score   support
+
+       False       0.44      1.00      0.61       215
+        True       1.00      0.04      0.07       285
+
+    accuracy                           0.45       500
+   macro avg       0.72      0.52      0.34       500
+weighted avg       0.76      0.45      0.31       500
+
+INFO:root:Latency
+INFO:root:count    500.000000
+mean       1.419420
+std        0.283031
+min        0.955200
+25%        1.234280
+50%        1.358977
+75%        1.542536
+max        3.748214
+Name: guard_latency, dtype: float64
+INFO:root:median latency
+INFO:root:1.3589773334970232
 """
 import os
 import time
@@ -49,7 +71,7 @@ logging.getLogger().setLevel(logging.INFO)
 random.seed(119)
 
 
-MODEL = "gpt-4o-mini"
+MODEL = "gpt-3.5-turbo"
 N_EVAL_SAMPLE_SIZE = 500
 
 
