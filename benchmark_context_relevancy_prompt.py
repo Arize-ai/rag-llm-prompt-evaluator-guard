@@ -71,7 +71,7 @@ logging.getLogger().setLevel(logging.INFO)
 random.seed(119)
 
 
-MODEL = "gpt-3.5-turbo"
+MODEL = "gpt-4o-mini"
 N_EVAL_SAMPLE_SIZE = 500
 
 
