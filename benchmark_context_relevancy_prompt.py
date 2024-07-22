@@ -54,7 +54,6 @@ import time
 from getpass import getpass
 from typing import List, Tuple
 import logging
-import random
 
 import openai
 import pandas as pd
@@ -68,9 +67,8 @@ from sklearn.utils import shuffle
 logger = logging.getLogger(__name__)
 logging.getLogger().setLevel(logging.INFO)
 
-random.seed(119)
 
-
+RANDOM_STATE = 119
 MODEL = "gpt-4o-mini"
 N_EVAL_SAMPLE_SIZE = 500
 
@@ -114,7 +112,7 @@ if __name__ == "__main__":
     test_dataset = download_benchmark_dataset(
         task="binary-relevance-classification",
         dataset_name="wiki_qa-train")
-    test_dataset = shuffle(test_dataset)
+    test_dataset = shuffle(test_dataset, random_state=RANDOM_STATE)
     test_dataset = test_dataset[:N_EVAL_SAMPLE_SIZE]
     
     guard = Guard.from_string(

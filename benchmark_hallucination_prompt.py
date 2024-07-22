@@ -56,7 +56,6 @@ import time
 from getpass import getpass
 from typing import List, Tuple
 import logging
-import random
 
 import openai
 import pandas as pd
@@ -70,9 +69,8 @@ from phoenix.evals import download_benchmark_dataset
 logger = logging.getLogger(__name__)
 logging.getLogger().setLevel(logging.INFO)
 
-random.seed(119)
 
-
+RANDOM_STATE = 119
 MODEL = "gpt-4o-mini"
 N_EVAL_SAMPLE_SIZE = 500
 
@@ -117,7 +115,7 @@ if __name__ == "__main__":
     test_dataset = download_benchmark_dataset(
         task="binary-hallucination-classification",
         dataset_name="halueval_qa_data")
-    test_dataset = shuffle(test_dataset)
+    test_dataset = shuffle(test_dataset, random_state=119)
     test_dataset = test_dataset[:N_EVAL_SAMPLE_SIZE]
     
     guard = Guard.from_string(
