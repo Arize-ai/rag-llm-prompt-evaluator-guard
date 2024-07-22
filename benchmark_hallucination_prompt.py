@@ -71,11 +71,12 @@ logging.getLogger().setLevel(logging.INFO)
 
 
 RANDOM_STATE = 119
-MODEL = "gpt-4o-mini"
+MODELS = ["gpt-4o-mini", "gpt-3.5-turbo"]
 N_EVAL_SAMPLE_SIZE = 500
+SAVE_RESULTS_DIR = "/tmp/hallucination_guard_results"
 
 
-def evaluate_guard_on_dataset(test_dataset: pd.DataFrame, guard: Guard) -> Tuple[List[float], List[bool]]:
+def evaluate_guard_on_dataset(test_dataset: pd.DataFrame, guard: Guard, model: str) -> Tuple[List[float], List[bool]]:
     """Evaluate guard on benchmark dataset.
 
     :param test_dataset: Dataframe of test examples.
@@ -90,7 +91,7 @@ def evaluate_guard_on_dataset(test_dataset: pd.DataFrame, guard: Guard) -> Tuple
         response = guard(
             llm_api=openai.chat.completions.create,
             prompt=rag_example["query"],
-            model=MODEL,
+            model=model,
             max_tokens=1024,
             temperature=0.5,
             metadata={
@@ -100,7 +101,6 @@ def evaluate_guard_on_dataset(test_dataset: pd.DataFrame, guard: Guard) -> Tuple
             }
         )
         latency_measurements.append(time.perf_counter() - start_time)
-        logging.debug(response)
         guard_passed.append(response.validation_passed)
     return latency_measurements, guard_passed
 
@@ -118,27 +118,33 @@ if __name__ == "__main__":
     test_dataset = shuffle(test_dataset, random_state=119)
     test_dataset = test_dataset[:N_EVAL_SAMPLE_SIZE]
     
-    guard = Guard.from_string(
-        validators=[
-            LlmRagEvaluator(
-                eval_llm_prompt_generator=HallucinationPrompt(prompt_name="hallucination_judge_llm"),
-                llm_evaluator_fail_response="hallucinated",
-                llm_evaluator_pass_response="factual",
-                llm_callable=MODEL,
-                on_fail="noop",
-                on="prompt")
-        ],
-    )
-    
-    latency_measurements, guard_passed = evaluate_guard_on_dataset(test_dataset=test_dataset, guard=guard)
-    test_dataset["guard_passed"] = guard_passed
-    test_dataset["guard_latency"] = latency_measurements
-    
-    logging.info("Guard Results")
-    # Calculate precision, recall and f1-score for when the Guard fails (e.g. flags a hallucination)
-    logging.info(classification_report(test_dataset["is_hallucination"], ~test_dataset["guard_passed"]))
-    
-    logging.info("Latency")
-    logging.info(test_dataset["guard_latency"].describe())
-    logging.info("median latency")
-    logging.info(test_dataset["guard_latency"].median())
+    for model in MODELS:
+        guard = Guard.from_string(
+            validators=[
+                LlmRagEvaluator(
+                    eval_llm_prompt_generator=HallucinationPrompt(prompt_name="hallucination_judge_llm"),
+                    llm_evaluator_fail_response="hallucinated",
+                    llm_evaluator_pass_response="factual",
+                    llm_callable=model,
+                    on_fail="noop",
+                    on="prompt")
+            ],
+        )
+        
+        latency_measurements, guard_passed = evaluate_guard_on_dataset(test_dataset=test_dataset, guard=guard, model=model)
+        test_dataset["guard_passed"] = guard_passed
+        test_dataset["guard_latency"] = latency_measurements
+
+        if SAVE_RESULTS_DIR:
+            os.makedirs(SAVE_RESULTS_DIR, exist_ok=True)
+            test_dataset.to_csv(os.path.join(SAVE_RESULTS_DIR, f"{model}.csv"))
+        
+        print(f"model: {model}")
+        print("Guard Results")
+        # Calculate precision, recall and f1-score for when the Guard fails (e.g. flags a hallucination)
+        print(classification_report(test_dataset["is_hallucination"], ~test_dataset["guard_passed"]))
+        
+        print("Latency")
+        print(test_dataset["guard_latency"].describe())
+        print("median latency")
+        print(test_dataset["guard_latency"].median())
