@@ -119,7 +119,7 @@ class LlmRagEvaluator(Validator):
         eval_llm_prompt_generator: Type[ArizeRagEvalPromptBase],
         llm_evaluator_fail_response: str,
         llm_evaluator_pass_response: str, 
-        llm_callable: str = "gpt-4o-mini",
+        llm_callable: str,
         on_fail: Optional[Callable] = "noop",
         **kwargs,
     ):
