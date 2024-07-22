@@ -5,23 +5,25 @@ MODEL = "gpt-4o-mini"
 INFO:root:Guard Results
 INFO:root:              precision    recall  f1-score   support
 
-       False       0.59      0.90      0.71        41
-        True       0.89      0.56      0.69        59
+       False       0.65      0.88      0.75       196
+        True       0.90      0.69      0.78       304
 
-    accuracy                           0.70       100
-   macro avg       0.74      0.73      0.70       100
-weighted avg       0.77      0.70      0.70       100
+    accuracy                           0.77       500
+   macro avg       0.77      0.79      0.76       500
+weighted avg       0.80      0.77      0.77       500
 
 INFO:root:Latency
-INFO:root:count    100.000000
-mean       2.138843
-std        0.908402
-min        0.938294
-25%        1.466153
-50%        1.873620
-75%        2.542088
-max        5.952361
+INFO:root:count    500.000000
+mean       2.560442
+std        1.256982
+min        0.988565
+25%        1.748613
+50%        2.164451
+75%        2.954022
+max       10.107409
 Name: guard_latency, dtype: float64
+INFO:root:median latency
+INFO:root:2.1644513119827025
 
 MODEL = "gpt-3.5-turbo"
 """
