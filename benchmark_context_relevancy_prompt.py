@@ -45,7 +45,7 @@ random.seed(119)
 
 
 MODEL = "gpt-4o-mini"
-N_EVAL_SAMPLE_SIZE = 100
+N_EVAL_SAMPLE_SIZE = 500
 
 
 def evaluate_guard_on_dataset(test_dataset: pd.DataFrame, guard: Guard) -> Tuple[List[float], List[bool]]:
@@ -112,3 +112,5 @@ if __name__ == "__main__":
     
     logging.info("Latency")
     logging.info(test_dataset["guard_latency"].describe())
+    logging.info("median latency")
+    logging.info(test_dataset["guard_latency"].median())
