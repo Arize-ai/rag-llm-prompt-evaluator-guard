@@ -1,6 +1,7 @@
 """Script to evaluate Context Relevancy Guard on "wiki_qa-train" benchmark dataset.
 * https://huggingface.co/datasets/microsoft/wiki_qa
 
+MODEL = "gpt-4o-mini"
 INFO:root:Guard Results
 INFO:root:              precision    recall  f1-score   support
 
@@ -21,6 +22,8 @@ min        0.938294
 75%        2.542088
 max        5.952361
 Name: guard_latency, dtype: float64
+
+MODEL = "gpt-3.5-turbo"
 """
 import os
 import time

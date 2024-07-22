@@ -203,11 +203,9 @@ class LlmRagEvaluator(Validator):
 
         # 2. Setup the prompt
         prompt = self._llm_evaluator_prompt_generator.generate_prompt(user_input_message=user_input_message, reference_text=reference_text, llm_response=value)
-        logging.info(f"evaluator prompt: {prompt}")
 
         # 3. Get the LLM response
         llm_response = self.get_llm_response(prompt)
-        logging.info(f"llm evaluator response: {llm_response}")
 
         # 4. Check the LLM response and return the result
         if llm_response == self._fail_response:
