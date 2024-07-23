@@ -5,49 +5,49 @@ Model: gpt-4o-mini
 Guard Results
               precision    recall  f1-score   support
 
-       False       0.66      0.87      0.75       197
-        True       0.89      0.70      0.79       303
+    relevant       0.70      0.86      0.77        93
+   unrelated       0.85      0.68      0.76       107
 
-    accuracy                           0.77       500
-   macro avg       0.77      0.79      0.77       500
-weighted avg       0.80      0.77      0.77       500
+    accuracy                           0.77       200
+   macro avg       0.78      0.77      0.76       200
+weighted avg       0.78      0.77      0.76       200
 
 Latency
-count    500.000000
-mean       2.464671
-std        1.350076
-min        1.066755
-25%        1.643355
-50%        2.083322
-75%        2.821537
-max       17.161242
+count    200.000000
+mean       2.812122
+std        1.753805
+min        1.067620
+25%        1.708051
+50%        2.248962
+75%        3.321251
+max       14.102804
 Name: guard_latency_gpt-4o-mini, dtype: float64
 median latency
-2.0833217084873468
+2.2489616039965767
 
-Model: gpt-3.5-turbo
+Model: gpt-4-turbo
 Guard Results
               precision    recall  f1-score   support
 
-       False       0.40      1.00      0.58       197
-        True       1.00      0.04      0.08       303
+    relevant       0.64      0.90      0.75        93
+   unrelated       0.87      0.56      0.68       107
 
-    accuracy                           0.42       500
-   macro avg       0.70      0.52      0.33       500
-weighted avg       0.77      0.42      0.28       500
+    accuracy                           0.72       200
+   macro avg       0.76      0.73      0.72       200
+weighted avg       0.76      0.72      0.71       200
 
 Latency
-count    500.000000
-mean       1.425171
-std        0.305953
-min        0.957211
-25%        1.228940
-50%        1.365073
-75%        1.552721
-max        4.420569
-Name: guard_latency_gpt-3.5-turbo, dtype: float64
+count    200.000000
+mean       8.561413
+std        6.425799
+min        1.624563
+25%        3.957226
+50%        5.979291
+75%       11.579224
+max       34.342637
+Name: guard_latency_gpt-4-turbo, dtype: float64
 median latency
-1.3650730834924616
+5.979290812509134
 """
 import os
 import time
@@ -65,8 +65,8 @@ from sklearn.utils import shuffle
 
 
 RANDOM_STATE = 119
-MODELS = ["gpt-4o-mini", "gpt-3.5-turbo"]
-N_EVAL_SAMPLE_SIZE = 500
+MODELS = ["gpt-4o-mini", "gpt-4-turbo"]
+N_EVAL_SAMPLE_SIZE = 200
 SAVE_RESULTS_PATH = "context_relevancy_guard_results.csv"
 
 
@@ -131,7 +131,9 @@ if __name__ == "__main__":
         print(f"\nModel: {model}")
         print("Guard Results")
         # Calculate precision, recall and f1-score for when the Guard fails (e.g. flags an irrelevant answer)
-        print(classification_report(~test_dataset["relevant"], ~test_dataset[f"guard_passed_{model}"]))
+        print(classification_report(
+            test_dataset["relevant"].replace(True, "relevant").replace(False, "unrelated"),
+            test_dataset[f"guard_passed_{model}"].replace(True, "relevant").replace(False, "unrelated")))
         print("Latency")
         print(test_dataset[f"guard_latency_{model}"].describe())
         print("median latency")

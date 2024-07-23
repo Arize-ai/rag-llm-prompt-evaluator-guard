@@ -3,6 +3,8 @@ Currently supported datasets include "halueval_qa_data" from the HaluEval benchm
 * https://arxiv.org/abs/2305.11747
 * https://github.com/RUCAIBox/HaluEval
 
+Below, False = "factual" and True = "hallucinated"
+
 Model: gpt-4o-mini
 Guard Results
               precision    recall  f1-score   support
@@ -67,8 +69,8 @@ from phoenix.evals import download_benchmark_dataset
 
 
 RANDOM_STATE = 119
-MODELS = ["gpt-4o-mini", "gpt-3.5-turbo"]
-N_EVAL_SAMPLE_SIZE = 300
+MODELS = ["gpt-4o-mini", "gpt-4-turbo"]
+N_EVAL_SAMPLE_SIZE = 250
 SAVE_RESULTS_PATH = "hallucination_guard_results.csv"
 
 
@@ -134,7 +136,9 @@ if __name__ == "__main__":
         print(f"\nModel: {model}")
         print("Guard Results")
         # Calculate precision, recall and f1-score for when the Guard fails (e.g. flags a hallucination)
-        print(classification_report(test_dataset["is_hallucination"], ~test_dataset[f"guard_passed_{model}"]))
+        print(classification_report(
+            test_dataset["is_hallucination"].replace(True, "hallucinated").replace(False, "factual"),
+            test_dataset[f"guard_passed_{model}"].replace(True, "factual").replace(False, "hallucinated")))
         
         print("Latency")
         print(test_dataset[f"guard_latency_{model}"].describe())

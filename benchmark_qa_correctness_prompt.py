@@ -3,13 +3,15 @@ The 2.0 version of the large-scale dataset Stanford Question Answering Dataset (
 researchers to design AI models for reading comprehension tasks under challenging constraints.
 https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1194/reports/default/15785042.pdf
 
+Below, False = "correct" and True = "incorrect"
+
 Model: gpt-4o-mini
 
 Guard Results
               precision    recall  f1-score   support
 
-       False       0.99      0.96      0.98       148
-        True       0.96      0.99      0.98       152
+       factual       0.99      0.96      0.98       148
+       hallucinated  0.96      0.99      0.98       152
 
     accuracy                           0.98       300
    macro avg       0.98      0.98      0.98       300
@@ -69,8 +71,8 @@ from sklearn.utils import shuffle
 
 
 RANDOM_STATE = 119
-MODELS = ["gpt-4o-mini", "gpt-3.5-turbo"]
-N_EVAL_SAMPLE_SIZE = 300
+MODELS = ["gpt-4o-mini", "gpt-4-turbo"]
+N_EVAL_SAMPLE_SIZE = 250
 SAVE_RESULTS_PATH = "qa_correctness_guard_results.csv"
 
 
@@ -136,7 +138,9 @@ if __name__ == "__main__":
         print(f"\nModel: {model}")
         print("\nGuard Results")
         # Calculate precision, recall and f1-score for when the Guard fails (e.g. flags an incorrect answer)
-        print(classification_report(~test_dataset["answer_true"], ~test_dataset[f"guard_passed_{model}"]))
+        print(classification_report(
+            test_dataset["answer_true"].replace(True, "correct").replace(False, "incorrect"),
+            test_dataset[f"guard_passed_{model}"].replace(True, "correct").replace(False, "incorrect")))
         
         print("Latency")
         print(test_dataset[f"guard_latency_{model}"].describe())
