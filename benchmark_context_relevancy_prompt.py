@@ -1,53 +1,53 @@
 """Script to evaluate Context Relevancy Guard on "wiki_qa-train" benchmark dataset.
 * https://huggingface.co/datasets/microsoft/wiki_qa
 
-MODEL = "gpt-4o-mini"
-INFO:root:Guard Results
-INFO:root:              precision    recall  f1-score   support
+Model: gpt-4o-mini
+Guard Results
+              precision    recall  f1-score   support
 
-       False       0.65      0.88      0.75       196
-        True       0.90      0.69      0.78       304
+       False       0.66      0.87      0.75       197
+        True       0.89      0.70      0.79       303
 
     accuracy                           0.77       500
-   macro avg       0.77      0.79      0.76       500
+   macro avg       0.77      0.79      0.77       500
 weighted avg       0.80      0.77      0.77       500
 
-INFO:root:Latency
-INFO:root:count    500.000000
-mean       2.560442
-std        1.256982
-min        0.988565
-25%        1.748613
-50%        2.164451
-75%        2.954022
-max       10.107409
-Name: guard_latency, dtype: float64
-INFO:root:median latency
-INFO:root:2.1644513119827025
+Latency
+count    500.000000
+mean       2.464671
+std        1.350076
+min        1.066755
+25%        1.643355
+50%        2.083322
+75%        2.821537
+max       17.161242
+Name: guard_latency_gpt-4o-mini, dtype: float64
+median latency
+2.0833217084873468
 
-MODEL = "gpt-3.5-turbo"
-INFO:root:Guard Results
-INFO:root:              precision    recall  f1-score   support
+Model: gpt-3.5-turbo
+Guard Results
+              precision    recall  f1-score   support
 
-       False       0.44      1.00      0.61       215
-        True       1.00      0.04      0.07       285
+       False       0.40      1.00      0.58       197
+        True       1.00      0.04      0.08       303
 
-    accuracy                           0.45       500
-   macro avg       0.72      0.52      0.34       500
-weighted avg       0.76      0.45      0.31       500
+    accuracy                           0.42       500
+   macro avg       0.70      0.52      0.33       500
+weighted avg       0.77      0.42      0.28       500
 
-INFO:root:Latency
-INFO:root:count    500.000000
-mean       1.419420
-std        0.283031
-min        0.955200
-25%        1.234280
-50%        1.358977
-75%        1.542536
-max        3.748214
-Name: guard_latency, dtype: float64
-INFO:root:median latency
-INFO:root:1.3589773334970232
+Latency
+count    500.000000
+mean       1.425171
+std        0.305953
+min        0.957211
+25%        1.228940
+50%        1.365073
+75%        1.552721
+max        4.420569
+Name: guard_latency_gpt-3.5-turbo, dtype: float64
+median latency
+1.3650730834924616
 """
 import os
 import time
@@ -66,8 +66,8 @@ from sklearn.utils import shuffle
 
 RANDOM_STATE = 119
 MODELS = ["gpt-4o-mini", "gpt-3.5-turbo"]
-N_EVAL_SAMPLE_SIZE = 100
-SAVE_RESULTS_DIR = "/tmp/context_relevancy_guard_results"
+N_EVAL_SAMPLE_SIZE = 500
+SAVE_RESULTS_PATH = "context_relevancy_guard_results.csv"
 
 
 def evaluate_guard_on_dataset(test_dataset: pd.DataFrame, guard: Guard, model: str) -> Tuple[List[float], List[bool]]:
@@ -125,17 +125,17 @@ if __name__ == "__main__":
         )
         
         latency_measurements, guard_passed = evaluate_guard_on_dataset(test_dataset=test_dataset, guard=guard, model=model)
-        test_dataset["guard_passed"] = guard_passed
-        test_dataset["guard_latency"] = latency_measurements
-        if SAVE_RESULTS_DIR:
-            os.makedirs(SAVE_RESULTS_DIR, exist_ok=True)
-            test_dataset.to_csv(os.path.join(SAVE_RESULTS_DIR, f"{model}.csv"))
+        test_dataset[f"guard_passed_{model}"] = guard_passed
+        test_dataset[f"guard_latency_{model}"] = latency_measurements
         
-        print(f"Model: {model}")
+        print(f"\nModel: {model}")
         print("Guard Results")
         # Calculate precision, recall and f1-score for when the Guard fails (e.g. flags an irrelevant answer)
-        print(classification_report(~test_dataset["relevant"], ~test_dataset["guard_passed"]))
+        print(classification_report(~test_dataset["relevant"], ~test_dataset[f"guard_passed_{model}"]))
         print("Latency")
-        print(test_dataset["guard_latency"].describe())
+        print(test_dataset[f"guard_latency_{model}"].describe())
         print("median latency")
-        print(test_dataset["guard_latency"].median())
+        print(test_dataset[f"guard_latency_{model}"].median())
+    
+    if SAVE_RESULTS_PATH:
+        test_dataset.to_csv(SAVE_RESULTS_PATH)

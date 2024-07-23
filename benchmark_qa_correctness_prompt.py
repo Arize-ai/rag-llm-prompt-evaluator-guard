@@ -69,7 +69,7 @@ from sklearn.utils import shuffle
 RANDOM_STATE = 119
 MODELS = ["gpt-4o-mini", "gpt-3.5-turbo"]
 N_EVAL_SAMPLE_SIZE = 500
-SAVE_RESULTS_DIR = "/tmp/qa_correctness_guard_results"
+SAVE_RESULTS_PATH = "qa_correctness_guard_results"
 
 
 def evaluate_guard_on_dataset(test_dataset: pd.DataFrame, guard: Guard, model: str) -> Tuple[List[float], List[bool]]:
@@ -128,18 +128,18 @@ if __name__ == "__main__":
         )
         
         latency_measurements, guard_passed = evaluate_guard_on_dataset(test_dataset=test_dataset, guard=guard, model=model)
-        test_dataset["guard_passed"] = guard_passed
-        test_dataset["guard_latency"] = latency_measurements
-
-        if SAVE_RESULTS_DIR:
-            os.makedirs(SAVE_RESULTS_DIR, exist_ok=True)
-            test_dataset.to_csv(os.path.join(SAVE_RESULTS_DIR, f"{model}.csv"))
+        test_dataset[f"guard_passed_{model}"] = guard_passed
+        test_dataset[f"guard_latency_{model}"] = latency_measurements
         
-        print("Guard Results")
+        print(f"\nModel: {model}")
+        print("\nGuard Results")
         # Calculate precision, recall and f1-score for when the Guard fails (e.g. flags an incorrect answer)
-        print(classification_report(~test_dataset["answer_true"], ~test_dataset["guard_passed"]))
+        print(classification_report(~test_dataset["answer_true"], ~test_dataset[f"guard_passed_{model}"]))
         
         print("Latency")
-        print(test_dataset["guard_latency"].describe())
+        print(test_dataset[f"guard_latency_{model}"].describe())
         print("median latency")
-        print(test_dataset["guard_latency"].median())
+        print(test_dataset[f"guard_latency_{model}"].median())
+
+    if SAVE_RESULTS_PATH:
+        test_dataset.to_csv(SAVE_RESULTS_PATH)
