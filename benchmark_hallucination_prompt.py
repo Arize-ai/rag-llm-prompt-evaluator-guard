@@ -3,55 +3,53 @@ Currently supported datasets include "halueval_qa_data" from the HaluEval benchm
 * https://arxiv.org/abs/2305.11747
 * https://github.com/RUCAIBox/HaluEval
 
-Below, False = "factual" and True = "hallucinated"
-
 Model: gpt-4o-mini
 Guard Results
               precision    recall  f1-score   support
 
-       False       0.80      0.97      0.87       155
-        True       0.96      0.74      0.83       145
+     factual       0.79      0.97      0.87       129
+hallucinated       0.96      0.73      0.83       121
 
-    accuracy                           0.86       300
-   macro avg       0.88      0.85      0.85       300
-weighted avg       0.87      0.86      0.85       300
+    accuracy                           0.85       250
+   macro avg       0.87      0.85      0.85       250
+weighted avg       0.87      0.85      0.85       250
 
 Latency
-count    300.000000
-mean       1.640542
-std        0.455257
-min        0.963567
-25%        1.350758
-50%        1.522506
-75%        1.804418
-max        4.354127
+count    250.000000
+mean       1.865513
+std        0.603700
+min        1.139974
+25%        1.531160
+50%        1.758210
+75%        2.026153
+max        6.403010
 Name: guard_latency_gpt-4o-mini, dtype: float64
 median latency
-1.5225062714889646
+1.7582097915001214
 
-Model: gpt-3.5-turbo
+Model: gpt-4-turbo
 Guard Results
               precision    recall  f1-score   support
 
-       False       0.79      0.77      0.78       155
-        True       0.76      0.78      0.77       145
+     factual       0.83      0.88      0.85       129
+hallucinated       0.87      0.80      0.83       121
 
-    accuracy                           0.78       300
-   macro avg       0.78      0.78      0.78       300
-weighted avg       0.78      0.78      0.78       300
+    accuracy                           0.84       250
+   macro avg       0.85      0.84      0.84       250
+weighted avg       0.85      0.84      0.84       250
 
 Latency
-count    300.000000
-mean       1.245045
-std        0.230798
-min        0.891845
-25%        1.113216
-50%        1.208505
-75%        1.330413
-max        3.591588
-Name: guard_latency_gpt-3.5-turbo, dtype: float64
+count    250.000000
+mean       4.295613
+std        2.393394
+min        1.460899
+25%        2.868255
+50%        3.724649
+75%        4.939440
+max       23.465773
+Name: guard_latency_gpt-4-turbo, dtype: float64
 median latency
-1.2085046040010639
+3.724648874514969
 """
 import os
 import time

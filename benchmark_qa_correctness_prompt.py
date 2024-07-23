@@ -3,57 +3,55 @@ The 2.0 version of the large-scale dataset Stanford Question Answering Dataset (
 researchers to design AI models for reading comprehension tasks under challenging constraints.
 https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1194/reports/default/15785042.pdf
 
-Below, False = "correct" and True = "incorrect"
-
 Model: gpt-4o-mini
 
 Guard Results
               precision    recall  f1-score   support
 
-       factual       0.99      0.96      0.98       148
-       hallucinated  0.96      0.99      0.98       152
+     correct       1.00      0.96      0.98       133
+   incorrect       0.96      1.00      0.98       117
 
-    accuracy                           0.98       300
-   macro avg       0.98      0.98      0.98       300
-weighted avg       0.98      0.98      0.98       300
+    accuracy                           0.98       250
+   macro avg       0.98      0.98      0.98       250
+weighted avg       0.98      0.98      0.98       250
 
 Latency
-count    300.000000
-mean       2.157875
-std        0.907331
-min        0.985851
-25%        1.537722
-50%        1.855992
-75%        2.492588
-max        6.124077
+count    250.000000
+mean       2.610912
+std        1.415877
+min        1.148114
+25%        1.678278
+50%        2.263149
+75%        2.916726
+max       10.625763
 Name: guard_latency_gpt-4o-mini, dtype: float64
 median latency
-1.8559920205152594
+2.263148645986803
 
-Model: gpt-3.5-turbo
+Model: gpt-4-turbo
 
 Guard Results
               precision    recall  f1-score   support
 
-       False       0.98      0.84      0.91       148
-        True       0.87      0.98      0.92       152
+     correct       1.00      0.92      0.96       133
+   incorrect       0.91      1.00      0.96       117
 
-    accuracy                           0.91       300
-   macro avg       0.92      0.91      0.91       300
-weighted avg       0.92      0.91      0.91       300
+    accuracy                           0.96       250
+   macro avg       0.96      0.96      0.96       250
+weighted avg       0.96      0.96      0.96       250
 
 Latency
-count    300.000000
-mean       1.346867
-std        0.467461
-min        0.960516
-25%        1.189675
-50%        1.277035
-75%        1.384363
-max        6.908191
-Name: guard_latency_gpt-3.5-turbo, dtype: float64
+count    250.000000
+mean       7.390556
+std        5.804535
+min        1.671949
+25%        3.544383
+50%        5.239343
+75%        8.484112
+max       30.651372
+Name: guard_latency_gpt-4-turbo, dtype: float64
 median latency
-1.277035374485422
+5.239343083492713
 """
 import os
 import time
