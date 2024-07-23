@@ -3,53 +3,55 @@ The 2.0 version of the large-scale dataset Stanford Question Answering Dataset (
 researchers to design AI models for reading comprehension tasks under challenging constraints.
 https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1194/reports/default/15785042.pdf
 
-MODEL = "gpt-4o-mini"
-INFO:root:Guard Results
-INFO:root:              precision    recall  f1-score   support
+Model: gpt-4o-mini
 
-       False       1.00      0.95      0.97       262
-        True       0.95      1.00      0.97       238
+Guard Results
+              precision    recall  f1-score   support
 
-    accuracy                           0.97       500
-   macro avg       0.97      0.97      0.97       500
-weighted avg       0.97      0.97      0.97       500
+       False       0.99      0.96      0.98       148
+        True       0.96      0.99      0.98       152
 
-INFO:root:Latency
-INFO:root:count    500.000000
-mean       2.180645
-std        1.040870
-min        0.930823
-25%        1.534513
-50%        1.916759
-75%        2.453579
-max       11.644362
-Name: guard_latency, dtype: float64
-INFO:root:median latency
-INFO:root:1.9167591669829562
+    accuracy                           0.98       300
+   macro avg       0.98      0.98      0.98       300
+weighted avg       0.98      0.98      0.98       300
 
-MODEL = "gpt-3.5-turbo"
-INFO:root:Guard Results
-INFO:root:              precision    recall  f1-score   support
+Latency
+count    300.000000
+mean       2.157875
+std        0.907331
+min        0.985851
+25%        1.537722
+50%        1.855992
+75%        2.492588
+max        6.124077
+Name: guard_latency_gpt-4o-mini, dtype: float64
+median latency
+1.8559920205152594
 
-       False       0.99      0.85      0.92       241
-        True       0.88      0.99      0.93       259
+Model: gpt-3.5-turbo
 
-    accuracy                           0.92       500
-   macro avg       0.93      0.92      0.92       500
-weighted avg       0.93      0.92      0.92       500
+Guard Results
+              precision    recall  f1-score   support
 
-INFO:root:Latency
-INFO:root:count    500.000000
-mean       1.319235
-std        0.267373
-min        0.908680
-25%        1.146413
-50%        1.240861
-75%        1.426277
-max        3.370158
-Name: guard_latency, dtype: float64
-INFO:root:median latency
-INFO:root:1.2408613750012591
+       False       0.98      0.84      0.91       148
+        True       0.87      0.98      0.92       152
+
+    accuracy                           0.91       300
+   macro avg       0.92      0.91      0.91       300
+weighted avg       0.92      0.91      0.91       300
+
+Latency
+count    300.000000
+mean       1.346867
+std        0.467461
+min        0.960516
+25%        1.189675
+50%        1.277035
+75%        1.384363
+max        6.908191
+Name: guard_latency_gpt-3.5-turbo, dtype: float64
+median latency
+1.277035374485422
 """
 import os
 import time
@@ -68,8 +70,8 @@ from sklearn.utils import shuffle
 
 RANDOM_STATE = 119
 MODELS = ["gpt-4o-mini", "gpt-3.5-turbo"]
-N_EVAL_SAMPLE_SIZE = 500
-SAVE_RESULTS_PATH = "qa_correctness_guard_results"
+N_EVAL_SAMPLE_SIZE = 300
+SAVE_RESULTS_PATH = "qa_correctness_guard_results.csv"
 
 
 def evaluate_guard_on_dataset(test_dataset: pd.DataFrame, guard: Guard, model: str) -> Tuple[List[float], List[bool]]:
