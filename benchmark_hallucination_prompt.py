@@ -3,53 +3,53 @@ Currently supported datasets include "halueval_qa_data" from the HaluEval benchm
 * https://arxiv.org/abs/2305.11747
 * https://github.com/RUCAIBox/HaluEval
 
-MODEL = "gpt-4o-mini"
-INFO:root:Guard Results
-INFO:root:              precision    recall  f1-score   support
+Model: gpt-4o-mini
+Guard Results
+              precision    recall  f1-score   support
 
-       False       0.78      0.98      0.86       265
-        True       0.96      0.68      0.80       235
+       False       0.80      0.97      0.87       155
+        True       0.96      0.74      0.83       145
 
-    accuracy                           0.84       500
-   macro avg       0.87      0.83      0.83       500
-weighted avg       0.86      0.84      0.83       500
+    accuracy                           0.86       300
+   macro avg       0.88      0.85      0.85       300
+weighted avg       0.87      0.86      0.85       300
 
-INFO:root:Latency
-INFO:root:count    500.000000
-mean       1.843508
-std        1.634371
-min        1.056757
-25%        1.377324
-50%        1.547401
-75%        1.862995
-max       26.142654
-Name: guard_latency, dtype: float64
-INFO:root:median latency
-INFO:root:1.5474009165191092
+Latency
+count    300.000000
+mean       1.640542
+std        0.455257
+min        0.963567
+25%        1.350758
+50%        1.522506
+75%        1.804418
+max        4.354127
+Name: guard_latency_gpt-4o-mini, dtype: float64
+median latency
+1.5225062714889646
 
-MODEL = "gpt-3.5-turbo"
-INFO:root:Guard Results
-INFO:root:              precision    recall  f1-score   support
+Model: gpt-3.5-turbo
+Guard Results
+              precision    recall  f1-score   support
 
-       False       0.84      0.80      0.82       275
-        True       0.77      0.82      0.79       225
+       False       0.79      0.77      0.78       155
+        True       0.76      0.78      0.77       145
 
-    accuracy                           0.81       500
-   macro avg       0.80      0.81      0.81       500
-weighted avg       0.81      0.81      0.81       500
+    accuracy                           0.78       300
+   macro avg       0.78      0.78      0.78       300
+weighted avg       0.78      0.78      0.78       300
 
-INFO:root:Latency
-INFO:root:count    500.000000
-mean       1.337587
-std        0.343144
-min        0.950819
-25%        1.176967
-50%        1.282560
-75%        1.439100
-max        7.220026
-Name: guard_latency, dtype: float64
-INFO:root:median latency
-INFO:root:1.2825598954805173
+Latency
+count    300.000000
+mean       1.245045
+std        0.230798
+min        0.891845
+25%        1.113216
+50%        1.208505
+75%        1.330413
+max        3.591588
+Name: guard_latency_gpt-3.5-turbo, dtype: float64
+median latency
+1.2085046040010639
 """
 import os
 import time
