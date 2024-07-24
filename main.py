@@ -119,7 +119,7 @@ class LlmRagEvaluator(Validator):
         eval_llm_prompt_generator: Type[ArizeRagEvalPromptBase],
         llm_evaluator_fail_response: str,
         llm_evaluator_pass_response: str, 
-        llm_callable: str = "gpt-4o-mini",
+        llm_callable: str,
         on_fail: Optional[Callable] = "noop",
         **kwargs,
     ):
@@ -203,11 +203,11 @@ class LlmRagEvaluator(Validator):
 
         # 2. Setup the prompt
         prompt = self._llm_evaluator_prompt_generator.generate_prompt(user_input_message=user_input_message, reference_text=reference_text, llm_response=value)
-        logging.info(f"evaluator prompt: {prompt}")
+        logging.debug(f"evaluator prompt: {prompt}")
 
         # 3. Get the LLM response
         llm_response = self.get_llm_response(prompt)
-        logging.info(f"llm evaluator response: {llm_response}")
+        logging.debug(f"llm evaluator response: {llm_response}")
 
         # 4. Check the LLM response and return the result
         if llm_response == self._fail_response:

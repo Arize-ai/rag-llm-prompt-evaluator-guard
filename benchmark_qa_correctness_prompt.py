@@ -3,33 +3,60 @@ The 2.0 version of the large-scale dataset Stanford Question Answering Dataset (
 researchers to design AI models for reading comprehension tasks under challenging constraints.
 https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1194/reports/default/15785042.pdf
 
-INFO:root:Guard Results
-INFO:root:              precision    recall  f1-score   support
+Model: gpt-4o-mini
 
-       False       1.00      0.94      0.97        50
-        True       0.94      1.00      0.97        50
+Guard Results
+              precision    recall  f1-score   support
 
-    accuracy                           0.97       100
-   macro avg       0.97      0.97      0.97       100
-weighted avg       0.97      0.97      0.97       100
+     correct       1.00      0.96      0.98       133
+   incorrect       0.96      1.00      0.98       117
 
-INFO:root:Latency
-INFO:root:count    100.000000
-mean       1.845307
-std        0.867450
-min        0.982674
-25%        1.354958
-50%        1.606060
-75%        1.928065
-max        6.342991
-Name: guard_latency, dtype: float64
+    accuracy                           0.98       250
+   macro avg       0.98      0.98      0.98       250
+weighted avg       0.98      0.98      0.98       250
+
+Latency
+count    250.000000
+mean       2.610912
+std        1.415877
+min        1.148114
+25%        1.678278
+50%        2.263149
+75%        2.916726
+max       10.625763
+Name: guard_latency_gpt-4o-mini, dtype: float64
+median latency
+2.263148645986803
+
+Model: gpt-4-turbo
+
+Guard Results
+              precision    recall  f1-score   support
+
+     correct       1.00      0.92      0.96       133
+   incorrect       0.91      1.00      0.96       117
+
+    accuracy                           0.96       250
+   macro avg       0.96      0.96      0.96       250
+weighted avg       0.96      0.96      0.96       250
+
+Latency
+count    250.000000
+mean       7.390556
+std        5.804535
+min        1.671949
+25%        3.544383
+50%        5.239343
+75%        8.484112
+max       30.651372
+Name: guard_latency_gpt-4-turbo, dtype: float64
+median latency
+5.239343083492713
 """
 import os
 import time
 from getpass import getpass
 from typing import List, Tuple
-import logging
-import random
 
 import openai
 import pandas as pd
@@ -40,17 +67,14 @@ from main import QACorrectnessPrompt, LlmRagEvaluator
 from phoenix.evals import download_benchmark_dataset
 from sklearn.utils import shuffle
 
-logger = logging.getLogger(__name__)
-logging.getLogger().setLevel(logging.INFO)
 
-random.seed(119)
-
-
-MODEL = "gpt-4o-mini"
-N_EVAL_SAMPLE_SIZE = 100
+RANDOM_STATE = 119
+MODELS = ["gpt-4o-mini", "gpt-4-turbo"]
+N_EVAL_SAMPLE_SIZE = 250
+SAVE_RESULTS_PATH = "qa_correctness_guard_results.csv"
 
 
-def evaluate_guard_on_dataset(test_dataset: pd.DataFrame, guard: Guard) -> Tuple[List[float], List[bool]]:
+def evaluate_guard_on_dataset(test_dataset: pd.DataFrame, guard: Guard, model: str) -> Tuple[List[float], List[bool]]:
     """Evaluate guard on benchmark dataset.
 
     :param test_dataset: Dataframe of test examples.
@@ -65,7 +89,7 @@ def evaluate_guard_on_dataset(test_dataset: pd.DataFrame, guard: Guard) -> Tuple
         response = guard(
             llm_api=openai.chat.completions.create,
             prompt=rag_example["question"],
-            model=MODEL,
+            model=model,
             max_tokens=1024,
             temperature=0.5,
             metadata={
@@ -75,7 +99,6 @@ def evaluate_guard_on_dataset(test_dataset: pd.DataFrame, guard: Guard) -> Tuple
             }
         )
         latency_measurements.append(time.perf_counter() - start_time)
-        logging.info(response)
         guard_passed.append(response.validation_passed)
     return latency_measurements, guard_passed
 
@@ -90,28 +113,37 @@ if __name__ == "__main__":
     test_dataset = df = download_benchmark_dataset(
         task="qa-classification",
         dataset_name="qa_generated_dataset")
-    test_dataset = shuffle(test_dataset)
+    test_dataset = shuffle(test_dataset, random_state=RANDOM_STATE)
     test_dataset = test_dataset[:N_EVAL_SAMPLE_SIZE]
     
-    guard = Guard.from_string(
-        validators=[
-            LlmRagEvaluator(
-                eval_llm_prompt_generator=QACorrectnessPrompt(prompt_name="qa_correctness_judge_llm"),
-                llm_evaluator_fail_response="incorrect",
-                llm_evaluator_pass_response="correct",
-                llm_callable=MODEL,
-                on_fail="noop",
-                on="prompt")
-        ],
-    )
-    
-    latency_measurements, guard_passed = evaluate_guard_on_dataset(test_dataset=test_dataset, guard=guard)
-    test_dataset["guard_passed"] = guard_passed
-    test_dataset["guard_latency"] = latency_measurements
-    
-    logging.info("Guard Results")
-    # Calculate precision, recall and f1-score for when the Guard fails (e.g. flags an incorrect answer)
-    logging.info(classification_report(~test_dataset["answer_true"], ~test_dataset["guard_passed"]))
-    
-    logging.info("Latency")
-    logging.info(test_dataset["guard_latency"].describe())
+    for model in MODELS:
+        guard = Guard.from_string(
+            validators=[
+                LlmRagEvaluator(
+                    eval_llm_prompt_generator=QACorrectnessPrompt(prompt_name="qa_correctness_judge_llm"),
+                    llm_evaluator_fail_response="incorrect",
+                    llm_evaluator_pass_response="correct",
+                    llm_callable=model,
+                    on_fail="noop",
+                    on="prompt")
+            ],
+        )
+        
+        latency_measurements, guard_passed = evaluate_guard_on_dataset(test_dataset=test_dataset, guard=guard, model=model)
+        test_dataset[f"guard_passed_{model}"] = guard_passed
+        test_dataset[f"guard_latency_{model}"] = latency_measurements
+        
+        print(f"\nModel: {model}")
+        print("\nGuard Results")
+        # Calculate precision, recall and f1-score for when the Guard fails (e.g. flags an incorrect answer)
+        print(classification_report(
+            test_dataset["answer_true"].replace(True, "correct").replace(False, "incorrect"),
+            test_dataset[f"guard_passed_{model}"].replace(True, "correct").replace(False, "incorrect")))
+        
+        print("Latency")
+        print(test_dataset[f"guard_latency_{model}"].describe())
+        print("median latency")
+        print(test_dataset[f"guard_latency_{model}"].median())
+
+    if SAVE_RESULTS_PATH:
+        test_dataset.to_csv(SAVE_RESULTS_PATH)
