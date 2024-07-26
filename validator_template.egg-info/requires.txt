@@ -1,0 +1,6 @@
+guardrails-ai>=0.4.0
+
+[dev]
+pyright
+pytest
+ruff
