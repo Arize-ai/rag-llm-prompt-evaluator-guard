@@ -212,7 +212,7 @@ class LlmRagEvaluator(Validator):
         # 4. Check the LLM response and return the result
         if llm_response == self._fail_response:
             return FailResult(
-                error_message=f'''The LLM Judge responded with "{self._fail_response}". The validation failed.\nOriginal LLM response: {metadata.get("llm_response")}''')
+                error_message=f'''Validation failed. The LLM Judge labeled the LLM response as "{self._fail_response}". \nEvaluator prompt: {prompt}''')
 
         if llm_response == self._pass_response:
             return PassResult()
