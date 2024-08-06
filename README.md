@@ -82,6 +82,7 @@ median latency
 This Guard was benchmarked on the 2.0 version of the large-scale dataset Stanford Question Answering Dataset (SQuAD 2.0):
 https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1194/reports/default/15785042.pdf
 
+```
 Model: gpt-4o-mini
 Guard Results
               precision    recall  f1-score   support
@@ -92,7 +93,9 @@ Guard Results
     accuracy                           0.98       250
    macro avg       0.98      0.98      0.98       250
 weighted avg       0.98      0.98      0.98       250
+```
 
+```
 Latency
 count    250.000000
 mean       2.610912
@@ -105,6 +108,7 @@ max       10.625763
 Name: guard_latency_gpt-4o-mini, dtype: float64
 median latency
 2.263148645986803
+```
 
 ## Installation
 
