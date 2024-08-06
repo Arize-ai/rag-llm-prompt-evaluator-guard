@@ -23,6 +23,7 @@ For the off-the-shelf Guards, we have benchmarked results on public datasets.
 We benchmarked the Context Relevancy Guard on "wiki_qa-train" benchmark dataset in `benchmark_context_relevancy_prompt.py`.
 * https://huggingface.co/datasets/microsoft/wiki_qa
 
+```
 Model: gpt-4o-mini
 Guard Results
               precision    recall  f1-score   support
@@ -46,6 +47,7 @@ max       14.102804
 Name: guard_latency_gpt-4o-mini, dtype: float64
 median latency
 2.2489616039965767
+```
 
 ### Hallucination LLM Judge
 
@@ -53,6 +55,7 @@ This Guard was benchmarked on the "halueval_qa_data" from the HaluEval benchmark
 * https://arxiv.org/abs/2305.11747
 * https://github.com/RUCAIBox/HaluEval
 
+```
 Model: gpt-4o-mini
 Guard Results
               precision    recall  f1-score   support
@@ -76,6 +79,7 @@ max        6.403010
 Name: guard_latency_gpt-4o-mini, dtype: float64
 median latency
 1.7582097915001214
+```
 
 ### QA Correctness LLM Judge
 
@@ -93,9 +97,7 @@ Guard Results
     accuracy                           0.98       250
    macro avg       0.98      0.98      0.98       250
 weighted avg       0.98      0.98      0.98       250
-```
 
-```
 Latency
 count    250.000000
 mean       2.610912
