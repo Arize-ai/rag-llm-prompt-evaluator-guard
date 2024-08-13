@@ -115,7 +115,7 @@ median latency
 ## Installation
 
 ```bash
-$ guardrails hub install hub://arize/llm_rag_evaluator
+guardrails hub install hub://arize-ai/llm_rag_evaluator
 ```
 
 ## Usage Examples
