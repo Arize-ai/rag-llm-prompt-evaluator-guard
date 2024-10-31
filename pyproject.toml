@@ -5,7 +5,7 @@ description = "Template repo for Guardrails Hub validators."
 authors = [
     {name = "Guardrails AI", email = "contact@guardrailsai.com"}
 ]
-license = {file = "LICENSE"}
+license = {file = "LICENSE.txt"}
 readme = "README.md"
 requires-python = ">= 3.8.1"
 dependencies = [
